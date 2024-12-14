@@ -1,0 +1,7 @@
+ipykernel
+pandas
+pyarrow
+fastparquet
+
+pinecone
+openai
