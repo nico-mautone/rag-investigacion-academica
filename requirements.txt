@@ -2,6 +2,9 @@ ipykernel
 pandas
 pyarrow
 fastparquet
+nltk
+langdetect
 
 pinecone
 openai
+googletrans
