@@ -8,3 +8,8 @@ langdetect
 pinecone
 openai
 googletrans
+
+fastapi
+fastapi[standard]
+
+python-dotenv
