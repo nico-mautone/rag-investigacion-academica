@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from app.routes.rag import rag_router
+from routes.rag import rag_router
+from fastapi.middleware.cors import CORSMiddleware
 
 def create_app() -> FastAPI:
     """
@@ -9,12 +10,21 @@ def create_app() -> FastAPI:
 
     # Include your RAG router (the query endpoint)
     app.include_router(rag_router, prefix="/query", tags=["RAG Queries"])
+    
+    # CORS settings, allow localhost:3000 for development
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:3000"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     return app
 
 app = create_app()
 
-# Run locally: uvicorn main:app --reload
+# Run locally
 # ---------------------------------------------------------------------
 # 1) pip install -r requirements.txt
 # 2) fastapi dev main.py

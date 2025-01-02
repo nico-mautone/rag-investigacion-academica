@@ -1,8 +1,6 @@
 from pinecone import Pinecone
 
-import os
-
-from app.config import INDEX_NAME
+from config import INDEX_NAME, PINECONE_API_KEY
 
 class PineconeService:
     def __init__(self, api_key: str, index_name: str):
@@ -51,4 +49,4 @@ class PineconeService:
             })
         return results
 
-pinecone_service = PineconeService(api_key=os.getenv("PINECONE_API_KEY"), index_name=INDEX_NAME)
+pinecone_service = PineconeService(api_key=PINECONE_API_KEY, index_name=INDEX_NAME)

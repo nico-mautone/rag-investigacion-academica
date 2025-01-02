@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from app.services.openai import openai_service
-from app.services.pinecone import pinecone_service
-from app.services.prompting import build_prompt
+from services.openai import openai_service
+from services.pinecone import pinecone_service
+from services.prompting import build_prompt
 
 rag_router = APIRouter()
 

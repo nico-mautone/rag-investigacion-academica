@@ -1,6 +1,6 @@
 from openai import OpenAI
 from fastapi import HTTPException
-import os
+from config import OPEN_AI_KEY
 
 class OpenAIService:
     def __init__(self, api_key: str):
@@ -26,4 +26,4 @@ class OpenAIService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"OpenAI ChatCompletion error: {str(e)}")
 
-openai_service = OpenAIService(api_key=os.environ['OPEN_AI_KEY'])
+openai_service = OpenAIService(api_key=OPEN_AI_KEY)
