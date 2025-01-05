@@ -41,6 +41,7 @@ def rag_query(payload: QueryRequest):
   if len(user_context) == 0:
     top_contexts = pinecone_service.get_similar_documents(query_vector, top_k=3)
     prompt = build_prompt_for_initial_message(user_query, top_contexts)
+    print(prompt)
   else:
     # 3) If it is not the first query, check if it is necessary to retrieve new documents
     prompt = build_prompt_to_check_necessity_of_retrieving_documents(user_context, user_query)
