@@ -35,7 +35,6 @@ def rag_query(payload: QueryRequest):
 
   # 1) Embed the user query using Pinecone
   refined_query = openai_service.get_chat_completion(build_prompt_for_query_refinement(user_context,user_query))
-  print(refined_query)
   query_vector = pinecone_service.get_embedding(refined_query)
   
   # 2) If it is the first query, fetch the top-3 documents from Pinecone sen the prompt without user_context
