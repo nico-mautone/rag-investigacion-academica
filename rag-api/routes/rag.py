@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from services.openai import openai_service
 from services.pinecone import pinecone_service
-from services.prompting import build_prompt
+from services.prompting import build_prompt_for_initial_message, build_prompt_to_check_necessity_of_retrieving_documents, build_prompt_for_intermediate_message_with_new_docs, build_prompt_for_intermediate_message_without_new_docs, build_prompt_for_query_refinement
 
 rag_router = APIRouter()
 
@@ -34,15 +34,32 @@ def rag_query(payload: QueryRequest):
   user_context = payload.context
 
   # 1) Embed the user query using Pinecone
-  query_vector = pinecone_service.get_embedding(user_query)
+  refined_query = openai_service.get_chat_completion(build_prompt_for_query_refinement(user_context,user_query))
+  print(refined_query)
+  query_vector = pinecone_service.get_embedding(refined_query)
   
-  # 2) Query Pinecone with this embedding
-  top_contexts = pinecone_service.get_similar_documents(query_vector, top_k=3)
+  # 2) If it is the first query, fetch the top-3 documents from Pinecone sen the prompt without user_context
+  if len(user_context) == 0:
+    top_contexts = pinecone_service.get_similar_documents(query_vector, top_k=3)
+    prompt = build_prompt_for_initial_message(user_query, top_contexts)
+  else:
+    # 3) If it is not the first query, check if it is necessary to retrieve new documents
+    prompt = build_prompt_to_check_necessity_of_retrieving_documents(user_context, user_query)
+    raw_answer = openai_service.get_chat_completion(prompt)
+    answer_clean = raw_answer.strip().lower()
+    if "true" in answer_clean:
+        answer = "True"
+    else:
+        answer = "False"
+    if answer == "True":
+      # 4) If new documents are necessary, fetch the top-3 documents from Pinecone and send the prompt with user_context
+      top_contexts = pinecone_service.get_similar_documents(query_vector, top_k=3)
+      prompt = build_prompt_for_intermediate_message_with_new_docs(user_context, user_query, top_contexts)
+    else:
+      # 5) If new documents are not necessary, send the prompt with user_context
+      prompt = build_prompt_for_intermediate_message_without_new_docs(user_context, user_query)
   
-  # 3) Build the prompt
-  prompt = build_prompt(user_query, top_contexts, user_context)
-  
-  # 4) Use OpenAI ChatCompletion to get final answer
+  # 6) Use OpenAI ChatCompletion to get final answer
   answer = openai_service.get_chat_completion(prompt)
   
   return QueryResponse(answer=answer)
