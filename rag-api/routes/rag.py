@@ -27,7 +27,13 @@ def rag_query(payload: QueryRequest):
     POST /query
     {
     "query": "I am doing research about active learning in NLP. Can you help?",
-    "context": "Some additional context here"
+    "context": [
+      {
+        "query": "What is active learning?",
+        "response": "Active learning is a type of machine learning in which a model can query a user or some other information source to obtain the desired outputs at new data points."
+      },
+      ...
+      ]
     }
   """
   user_query = payload.query

@@ -1,4 +1,4 @@
-def build_prompt_for_initial_message(query: str, contexts: list[dict]) -> str:
+def build_prompt_for_initial_message(query: str, documents: list[dict]) -> str:
     """
     Build a prompt that includes up to three context items (title, abstract, score),
     the user query, and the user context, in English.
@@ -43,10 +43,10 @@ def build_prompt_for_initial_message(query: str, contexts: list[dict]) -> str:
     abstracts = []
     scores = []
     for i in range(3):
-        if i < len(contexts):
-            titles.append(contexts[i].get("title", ""))
-            abstracts.append(contexts[i].get("abstract", ""))
-            scores.append(contexts[i].get("score", ""))
+        if i < len(documents):
+            titles.append(documents[i].get("title", ""))
+            abstracts.append(documents[i].get("abstract", ""))
+            scores.append(documents[i].get("score", ""))
         else:
             titles.append("")
             abstracts.append("")
@@ -97,18 +97,12 @@ def build_prompt_to_check_necessity_of_retrieving_documents(
         True (If you think the researcher wants you to find new articles)
         False (If you think the researcher is asking about the previously recommended articles)
     """
-
-    # Take only the last 10 messages from user_context
-    recent_context = user_context[-10:]
-    user_context_str = ""
-    for idx, turn in enumerate(recent_context, start=1):
-        user_context_str += (
-            f"User message {idx}: {turn.get('query', '')}\n Assistant answer: {turn.get('response', '')}\n\n"
-        )
+    
+    conversation = get_recent_conversation(user_context)
         
     return prompt_template.format(
         last_query=user_query,
-        previous_queries=user_context_str.strip()
+        previous_queries=conversation.strip()
     ).strip()
 
 
@@ -166,13 +160,8 @@ def build_prompt_for_intermediate_message_with_new_docs(
         Based on this, provide the best possible answer to the researcher in the same language as the new user question:
     """
 
-    # Take only the last 10 messages from user_context
-    recent_context = user_context[-10:]
-    conversation = ""
-    for idx, turn in enumerate(recent_context, start=1):
-        conversation += (
-            f"User message {idx}: {turn.get('query', '')}\n Assistant answer: {turn.get('response', '')}\n\n"
-        )
+    # Use the auxiliary function
+    conversation = get_recent_conversation(user_context)
 
     titles = []
     abstracts = []
@@ -253,13 +242,7 @@ def build_prompt_for_intermediate_message_without_new_docs(
         Provide the best possible answer to the researcher in the same language as the new user question:
     """
 
-    # Take only the last 10 messages from user_context
-    recent_context = user_context[-10:]
-    conversation = ""
-    for idx, turn in enumerate(recent_context, start=1):
-        conversation += (
-            f"User message {idx}: {turn.get('query', '')}\n Assistant answer: {turn.get('response', '')}\n\n"
-        )
+    conversation = get_recent_conversation(user_context)
 
     prompt_filled = prompt_template.format(
         conversation_history=conversation.strip(),
@@ -303,16 +286,22 @@ def build_prompt_for_query_refinement(
 
         Based on all the above, produce the best possible refined query:
     """
-    recent_context = user_context[-10:]
-    conversation = ""
-    for idx, turn in enumerate(recent_context, start=1):
-        conversation += (
-            f"User message {idx}: {turn.get('query', '')}\n"
-            f"Assistant answer: {turn.get('response', '')}\n\n"
-        )
+    conversation = get_recent_conversation(user_context)
     prompt_filled = prompt_template.format(
         conversation=conversation.strip(),
         last_query=last_query
     ).strip()
 
     return prompt_filled
+
+def get_recent_conversation(user_context: list[dict], limit: int = 10) -> str:
+    """
+    Extract the last `limit` messages from the user context and format them as a conversation string.
+    """
+    recent_context = user_context[-limit:]
+    conversation = ""
+    for idx, turn in enumerate(recent_context, start=1):
+        conversation += (
+            f"User message {idx}: {turn.get('query', '')}\n Assistant answer: {turn.get('response', '')}\n\n"
+        )
+    return conversation.strip()
