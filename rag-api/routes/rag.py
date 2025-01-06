@@ -43,25 +43,29 @@ def rag_query(payload: QueryRequest):
   refined_query = openai_service.get_chat_completion(build_prompt_for_query_refinement(user_context,user_query))
   query_vector = pinecone_service.get_embedding(refined_query)
   
-  # 2) If it is the first query, fetch the top-3 documents from Pinecone sen the prompt without user_context
+  # 2.1) If it is the first query, fetch the top-3 documents from Pinecone sen the prompt without user_context
   if len(user_context) == 0:
     top_contexts = pinecone_service.get_similar_documents(query_vector, top_k=3)
     prompt = build_prompt_for_initial_message(user_query, top_contexts)
     print(prompt)
   else:
-    # 3) If it is not the first query, check if it is necessary to retrieve new documents
+    # 2.2) If it is not the first query, check if it is necessary to retrieve new documents
     prompt = build_prompt_to_check_necessity_of_retrieving_documents(user_context, user_query)
     raw_answer = openai_service.get_chat_completion(prompt)
     answer_clean = raw_answer.strip().lower()
     if "true" in answer_clean:
-      # 4) If new documents are necessary, fetch the top-3 documents from Pinecone and send the prompt with user_context
+        answer = "True"
+    else:
+        answer = "False"
+    if answer == "True":
+      # 2.2.1) If new documents are necessary, fetch the top-3 documents from Pinecone and send the prompt with user_context
       top_contexts = pinecone_service.get_similar_documents(query_vector, top_k=3)
       prompt = build_prompt_for_intermediate_message_with_new_docs(user_context, user_query, top_contexts)
     else:
-      # 5) If new documents are not necessary, send the prompt with user_context
+      # 2.2.2) If new documents are not necessary, send the prompt with user_context
       prompt = build_prompt_for_intermediate_message_without_new_docs(user_context, user_query)
   
-  # 6) Use OpenAI ChatCompletion to get final answer
+  # 3) Use OpenAI ChatCompletion to get final answer
   answer = openai_service.get_chat_completion(prompt)
   
   return QueryResponse(answer=answer)
