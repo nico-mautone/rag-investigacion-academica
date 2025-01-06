@@ -45,7 +45,7 @@ class PineconeService:
             results.append({
                 "title": meta.get("title", ""),
                 "abstract": meta.get("abstract", ""),
-                "score": match.score  # optionally keep track of similarity score
+                "score": match.score  
             })
         return results
 
