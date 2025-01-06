@@ -2,6 +2,12 @@
 
 An advanced academic research assistant leveraging Retrieval-Augmented Generation (RAG) to provide precise and context-aware answers for researchers. This project integrates OpenAI's language models with Pinecone's vector database to enhance academic queries.
 
+#### Note
+The frontend for this project is available at [rag-frontend](https://github.com/nico-mautone/search-nudge).
+
+
+It consists of an AI generated React frontend that interacts with this API. The reason for this separation is to allow for the frontend to be easily swapped out with a different implementation. Also, as the main focus of this project is the AI model, the frontend is kept simple and minimal using this AI generated frontend.
+
 ## Project structure
 
 - **`main.py`**: The main entry point of the FastAPI application.
@@ -70,7 +76,7 @@ cd rag-api
 pip install -r requirements.txt
 ```
 
-## Deployment
+## Running the server
 
 To deploy this project locally:
 
