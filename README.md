@@ -3,14 +3,15 @@
 An advanced academic research assistant leveraging Retrieval-Augmented Generation (RAG) to provide precise and context-aware answers for researchers. This project integrates OpenAI's language models with Pinecone's vector database to enhance academic queries.
 
 #### Note
-The frontend for this project is available at [rag-frontend](https://github.com/nico-mautone/search-nudge).
 
+The frontend for this project is available at [rag-frontend](https://github.com/nico-mautone/search-nudge).
 
 It consists of an AI generated React frontend that interacts with this API. The reason for this separation is to allow for the frontend to be easily swapped out with a different implementation. Also, as the main focus of this project is the AI model, the frontend is kept simple and minimal using this AI generated frontend.
 
 ## Project structure
 
 - **`main.py`**: The main entry point of the FastAPI application.
+
   - Configures the server, sets up middleware for CORS, and includes routes for RAG queries.
 
 - **`rag.py`**: Contains the core logic for processing user queries and retrieving relevant documents.
@@ -27,11 +28,42 @@ It consists of an AI generated React frontend that interacts with this API. The 
 
 - **`requirements.txt`**: Lists all dependencies required for the project.
 
-- **Notebooks**: 
+- **Notebooks**:
   - `setting_up_pinecone_database.ipynb`: Guides the setup of Pinecone.
   - `rag_test.ipynb`: Demonstrates the testing of the RAG workflow.
 
-## RAG flow
+## RAG Workflow
+
+![RAG Workflow](RAGflow.jpg)
+
+The flow of the Retrieval-Augmented Generation (RAG) system works as follows:
+
+1. **User Input**:
+
+   - The process starts when the **user** sends a query (`user query`) and optionally includes some prior context (`user context`).
+
+2. **Refining the Query**:
+
+   - The query is first passed to the `gpt-4o-mini` model (via OpenAI's API), which refines the query by considering the `user context` and translates it to English. This step ensures that the query is clear and well-optimized for document retrieval.
+
+3. **Generating Embeddings**:
+
+   - The refined query is then sent to the **PineconeService**, which generates a vector embedding for the query using its embedding service. This embedding represents the query in a numerical format suitable for similarity searches.
+
+4. **Retrieving Documents**:
+
+   - The embedding is used to search for similar documents in the **Pinecone Database (DDBB)**. Pinecone retrieves the top-k documents that are most relevant to the refined query.
+   - If there is no prior user context or if the retrieved documents are determined to be relevant, they are returned to the system for further processing.
+
+5. **Context Validation**:
+
+   - If the query has user context, the system checks whether retrieving new documents is necessary:
+     - **If new documents are required**, the process fetches and includes them along with the existing context.
+     - **If no new documents are needed**, the system skips the retrieval step and works directly with the existing context.
+
+6. **Generating the Final Answer**:
+   - The final step involves passing the user query, context, and any retrieved documents to the `gpt-4o-mini` model. The model processes this information and generates a comprehensive response to the user query.
+   - This response is then sent back to the user.
 
 ## API Reference
 
@@ -41,23 +73,25 @@ It consists of an AI generated React frontend that interacts with this API. The 
 POST /query
 ```
 
-| Parameter   | Type     | Description                                             |
-| :---------- | :------- | :------------------------------------------------------|
-| `query`     | `string` | **Required**. The research question or topic to query. |
-| `context`   | `array`  | Optional. Previous conversation context for continuity. |
+| Parameter | Type     | Description                                             |
+| :-------- | :------- | :------------------------------------------------------ |
+| `query`   | `string` | **Required**. The research question or topic to query.  |
+| `context` | `array`  | Optional. Previous conversation context for continuity. |
 
 **Example Request:**
+
 ```json
 {
-  "query": "I’m doing research on reinforcement learning. Tell me which articles I should start with.",
-  "context": []
+	"query": "I’m doing research on reinforcement learning. Tell me which articles I should start with.",
+	"context": []
 }
 ```
 
 **Example Response:**
+
 ```json
 {
-  "answer": "I found several articles that are related to your research on reinforcement learning...."
+	"answer": "I found several articles that are related to your research on reinforcement learning...."
 }
 ```
 
@@ -69,6 +103,7 @@ To set up the project locally:
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
+
 Then, go to the `rag-api` directory:
 
 ```bash
@@ -83,4 +118,3 @@ To deploy this project locally:
 ```bash
 fastapi dev main.py
 ```
-
