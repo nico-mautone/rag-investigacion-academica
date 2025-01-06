@@ -1,50 +1,86 @@
-# rag-investigacion-academica
+# Academic Research Assistant (RAG Implementation)
 
-## Run Frontend
+An advanced academic research assistant leveraging Retrieval-Augmented Generation (RAG) to provide precise and context-aware answers for researchers. This project integrates OpenAI's language models with Pinecone's vector database to enhance academic queries.
 
-First, go to the `frontend/academic-chatbot` directory:
+#### Note
+The frontend for this project is available at [rag-frontend](https://github.com/nico-mautone/search-nudge).
 
-```bash
-cd frontend/academnic-chatbot
+
+It consists of an AI generated React frontend that interacts with this API. The reason for this separation is to allow for the frontend to be easily swapped out with a different implementation. Also, as the main focus of this project is the AI model, the frontend is kept simple and minimal using this AI generated frontend.
+
+## Project structure
+
+- **`main.py`**: The main entry point of the FastAPI application.
+  - Configures the server, sets up middleware for CORS, and includes routes for RAG queries.
+
+- **`rag.py`**: Contains the core logic for processing user queries and retrieving relevant documents.
+
+- **`openai.py`**: Manages interactions with the OpenAI API for generating responses.
+
+- **`pinecone.py`**: Handles document retrieval using Pinecone's vector database.
+
+- **`prompting.py`**: Builds tailored prompts for different stages of query processing.
+
+- **`config.py`**: Loads and validates environment variables, including API keys for OpenAI and Pinecone.
+
+- **`.env.public`**: Example environment file containing placeholders for API keys.
+
+- **`requirements.txt`**: Lists all dependencies required for the project.
+
+- **Notebooks**: 
+  - `setting_up_pinecone_database.ipynb`: Guides the setup of Pinecone.
+  - `rag_test.ipynb`: Demonstrates the testing of the RAG workflow.
+
+## RAG flow
+
+## API Reference
+
+#### Query endpoint
+
+```http
+POST /query
 ```
 
-### Install dependencies
+| Parameter   | Type     | Description                                             |
+| :---------- | :------- | :------------------------------------------------------|
+| `query`     | `string` | **Required**. The research question or topic to query. |
+| `context`   | `array`  | Optional. Previous conversation context for continuity. |
 
-```bash
-npm install
+**Example Request:**
+```json
+{
+  "query": "I’m doing research on reinforcement learning. Tell me which articles I should start with.",
+  "context": []
+}
 ```
 
-### Run the project
-
-```bash
-npm run dev
+**Example Response:**
+```json
+{
+  "answer": "I found several articles that are related to your research on reinforcement learning...."
+}
 ```
 
-## Run Backend
+## Installation
 
-First, go to the `rag-api` directory:
+To set up the project locally:
+
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
+Then, go to the `rag-api` directory:
 
 ```bash
 cd rag-api
-```
-
-### Install dependencies
-
-```bash
 pip install -r requirements.txt
 ```
 
-### Add environment variables
+## Running the server
 
-Create a `.env` file in the root of the `rag-api` folder with the following content:
-
-```bash
-PINECONE_API_KEY=...
-OPEN_AI_KEY=...
-```
-
-### Run the project
+To deploy this project locally:
 
 ```bash
 fastapi dev main.py
 ```
+
