@@ -27,7 +27,13 @@ def rag_query(payload: QueryRequest):
     POST /query
     {
     "query": "I am doing research about active learning in NLP. Can you help?",
-    "context": "Some additional context here"
+    "context": [
+      {
+        "query": "What is active learning?",
+        "response": "Active learning is a type of machine learning in which a model can query a user or some other information source to obtain the desired outputs at new data points."
+      },
+      ...
+      ]
     }
   """
   user_query = payload.query
@@ -48,10 +54,6 @@ def rag_query(payload: QueryRequest):
     raw_answer = openai_service.get_chat_completion(prompt)
     answer_clean = raw_answer.strip().lower()
     if "true" in answer_clean:
-        answer = "True"
-    else:
-        answer = "False"
-    if answer == "True":
       # 4) If new documents are necessary, fetch the top-3 documents from Pinecone and send the prompt with user_context
       top_contexts = pinecone_service.get_similar_documents(query_vector, top_k=3)
       prompt = build_prompt_for_intermediate_message_with_new_docs(user_context, user_query, top_contexts)
