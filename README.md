@@ -40,11 +40,11 @@ The flow of the Retrieval-Augmented Generation (RAG) system works as follows:
 
 1. **User Input**:
 
-   - The process starts when the **user** sends a query (`user query`) and optionally includes some prior context (`user context`).
+   - The process starts when the **user** sends a query (`user query`).
 
 2. **Refining the Query**:
 
-   - The query is first passed to the `gpt-4o-mini` model (via OpenAI's API), which refines the query by considering the `user context` and translates it to English. This step ensures that the query is clear and well-optimized for document retrieval.
+   - The query is first passed to the `gpt-4o-mini` model (via OpenAI's API), which refines the query by considering the `user context` (The last 10 messages of the conversation) and translates it to English. This step ensures that the query is clear and well-optimized for document retrieval.
 
 3. **Generating Embeddings**:
 
@@ -53,11 +53,10 @@ The flow of the Retrieval-Augmented Generation (RAG) system works as follows:
 4. **Retrieving Documents**:
 
    - The embedding is used to search for similar documents in the **Pinecone Database (DDBB)**. Pinecone retrieves the top-k documents that are most relevant to the refined query.
-   - If there is no prior user context or if the retrieved documents are determined to be relevant, they are returned to the system for further processing.
 
 5. **Context Validation**:
 
-   - If the query has user context, the system checks whether retrieving new documents is necessary:
+   - When the query is received, if it is not the first message (So it has some context and maybe could be resolved without accessing the vector database) the system checks whether retrieving new documents is necessary:
      - **If new documents are required**, the process fetches and includes them along with the existing context.
      - **If no new documents are needed**, the system skips the retrieval step and works directly with the existing context.
 
