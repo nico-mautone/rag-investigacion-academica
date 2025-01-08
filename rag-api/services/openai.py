@@ -19,7 +19,7 @@ class OpenAIService:
             completion = self.client.chat.completions.create(
                 model=model_name,
                 messages=messages,
-                temperature=0.7,
+                temperature=0.3,
                 max_tokens=800
             )
             return completion.choices[0].message.content.strip()
