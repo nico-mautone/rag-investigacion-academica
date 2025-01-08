@@ -110,6 +110,8 @@ cd rag-api
 pip install -r requirements.txt
 ```
 
+Within this folder, the OpenAI and Pinecone keys must be included in a `.env` file based on the reference file `.env.public`.
+
 ## Running the server
 
 To deploy this project locally:
