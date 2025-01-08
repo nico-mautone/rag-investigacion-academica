@@ -50,15 +50,15 @@ The flow of the Retrieval-Augmented Generation (RAG) system works as follows:
 
    - The refined query is then sent to the **PineconeService**, which generates a vector embedding for the query using its embedding service. This embedding represents the query in a numerical format suitable for similarity searches.
 
-4. **Retrieving Documents**:
-
-   - The embedding is used to search for similar documents in the **Pinecone Database (DDBB)**. Pinecone retrieves the top-k documents that are most relevant to the refined query.
-
-5. **Context Validation**:
+4. **Context Validation**:
 
    - When the query is received, if it is not the first message (So it has some context and maybe could be resolved without accessing the vector database) the system checks whether retrieving new documents is necessary:
      - **If new documents are required**, the process fetches and includes them along with the existing context.
      - **If no new documents are needed**, the system skips the retrieval step and works directly with the existing context.
+
+5. **Retrieving Documents**:
+
+   - The embedding is used to search for similar documents in the **Pinecone Database (DDBB)**. Pinecone retrieves the top-k documents that are most relevant to the refined query.
 
 6. **Generating the Final Answer**:
    - The final step involves passing the user query, context, and any retrieved documents to the `gpt-4o-mini` model. The model processes this information and generates a comprehensive response to the user query.
