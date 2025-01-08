@@ -4,7 +4,7 @@ An advanced academic research assistant leveraging Retrieval-Augmented Generatio
 
 #### Note
 
-The frontend for this project is available at [rag-frontend](https://github.com/nico-mautone/search-nudge).
+The frontend for this project is available at [rag-frontend](https://github.com/nico-mautone/frontend-investigacion-academica).
 
 It consists of an AI generated React frontend that interacts with this API. The reason for this separation is to allow for the frontend to be easily swapped out with a different implementation. Also, as the main focus of this project is the AI model, the frontend is kept simple and minimal using this AI generated frontend.
 
