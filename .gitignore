@@ -2,3 +2,4 @@ rag_investigacion_env/
 .env
 *.pyc
 /rag-api/venv/
+*.parquet
